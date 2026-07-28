@@ -1,9 +1,8 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import BotConnectCard from "@/components/BotConnectCard";
-import { estimateCashback } from "@/lib/cashback";
 import { inspectShopeeUrl } from "@/lib/shopee-url";
 
 type ProductPreview = {
@@ -101,13 +100,7 @@ export default function HomeClient() {
   const [error, setError] = useState("");
   const [preview, setPreview] = useState<ProductPreview | null>(null);
   const [copied, setCopied] = useState(false);
-  const [orderValue, setOrderValue] = useState(500_000);
   const [showNotice, setShowNotice] = useState(false);
-
-  const estimatedCashback = useMemo(
-    () => estimateCashback(orderValue),
-    [orderValue]
-  );
 
   useEffect(() => {
     try {
@@ -533,97 +526,81 @@ export default function HomeClient() {
           </div>
         </section>
 
-        <section className="bg-[#151c2c] py-16 text-white sm:py-20">
-          <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_0.92fr] lg:items-center lg:px-8">
-            <div>
-              <span className="inline-flex rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold text-orange-200">
-                Ước tính nhanh
-              </span>
-              <h2 className="mt-5 max-w-xl text-3xl font-black leading-tight tracking-[-0.045em] sm:text-4xl">
-                Kiểm tra số tiền được hoàn.
-              </h2>
-              <p className="mt-5 max-w-xl text-sm leading-7 text-slate-300 sm:text-base">
-                Mức hoàn phụ thuộc ngành hàng, chiến dịch và hoa hồng thực tế
-                được Shopee đối soát. Công cụ bên cạnh chỉ dùng để tham khảo.
+        <section className="bg-gradient-to-b from-[#fffaf5] to-white py-16 sm:py-20">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+            <div className="text-center">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#ee4d2d]">
+                Ưu đãi tăng trưởng
               </p>
-              <div className="mt-8 grid max-w-xl grid-cols-3 gap-3">
-                {[
-                  ["0đ", "Phí sử dụng"],
-                  ["24/7", "Tạo link"],
-                  ["1 ví", "Theo dõi tất cả"],
-                ].map(([value, label]) => (
-                  <div
-                    key={label}
-                    className="rounded-2xl border border-white/10 bg-white/5 p-4"
-                  >
-                    <p className="text-xl font-black text-white">{value}</p>
-                    <p className="mt-1 text-[11px] text-slate-400">{label}</p>
-                  </div>
-                ))}
-              </div>
+              <h2 className="mt-2 text-3xl font-black tracking-[-0.045em] text-slate-950 sm:text-4xl">
+                3 chương trình đang chạy
+              </h2>
+              <p className="mt-2 text-sm text-slate-500 sm:text-base">
+                Thành viên mới · Mời bạn bè · Top mua tuần · Rút từ{" "}
+                <b className="text-[#ee4d2d]">50.000đ</b>
+              </p>
             </div>
 
-            <div className="relative">
-              <div className="absolute -inset-4 rounded-[36px] bg-orange-500/15 blur-2xl" />
-              <div className="relative rounded-[28px] border border-white/10 bg-white p-6 text-slate-950 shadow-2xl sm:p-8">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-extrabold">Ước tính cashback</p>
-                    <p className="mt-1 text-xs text-slate-500">
-                      Giả định mức hoàn tham khảo 5,6%
-                    </p>
-                  </div>
-                  <span className="grid h-11 w-11 place-items-center rounded-2xl bg-orange-50 text-xl">
-                    🪙
-                  </span>
-                </div>
-
-                <label
-                  htmlFor="order-value"
-                  className="mt-7 block text-xs font-bold text-slate-600"
+            <div className="mt-8 grid gap-4 md:grid-cols-3">
+              <article className="rounded-[22px] border-2 border-emerald-200 bg-white p-6 shadow-[0_10px_30px_rgba(15,23,42,0.05)] transition hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(16,185,129,0.12)]">
+                <span className="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-extrabold text-emerald-700">
+                  Thành viên mới
+                </span>
+                <h3 className="mt-4 text-xl font-black text-slate-950">
+                  Hoàn cao hơn 85%
+                </h3>
+                <p className="mt-3 text-sm leading-7 text-slate-500">
+                  3 đơn đầu trong <b>14 ngày</b> sau đăng ký: nhận{" "}
+                  <b className="text-emerald-600">85%</b> tiền hoàn, thay vì mức
+                  thường.
+                </p>
+                <Link
+                  href="/register"
+                  className="mt-4 inline-flex text-sm font-extrabold text-emerald-600 hover:underline"
                 >
-                  Giá trị đơn hàng
-                </label>
-                <div className="relative mt-2">
-                  <input
-                    id="order-value"
-                    type="number"
-                    min={0}
-                    max={100_000_000}
-                    step={50_000}
-                    value={orderValue}
-                    onChange={(event) => {
-                      const value = Number(event.target.value);
-                      setOrderValue(
-                        Number.isFinite(value)
-                          ? Math.min(100_000_000, Math.max(0, value))
-                          : 0
-                      );
-                    }}
-                    className="input min-h-14 pr-12 font-extrabold"
-                  />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">
-                    đ
-                  </span>
-                </div>
-
-                <div className="mt-5 rounded-2xl bg-gradient-to-br from-orange-50 to-amber-50 p-5">
-                  <p className="text-xs font-semibold text-slate-500">
-                    Bạn có thể nhận khoảng
-                  </p>
-                  <p className="mt-2 text-3xl font-black tracking-[-0.04em] text-[#e54a29]">
-                    {formatCurrency(estimatedCashback)}
-                  </p>
-                  <div className="mt-4 h-2 overflow-hidden rounded-full bg-white">
-                    <div className="h-full w-[56%] rounded-full bg-gradient-to-r from-orange-400 to-[#ee4d2d]" />
-                  </div>
-                </div>
-
-                <Link href="/register" className="btn-primary mt-5 w-full">
-                  Tạo tài khoản miễn phí
-                  <span aria-hidden="true">→</span>
+                  Đăng ký nhận ưu đãi →
                 </Link>
-              </div>
+              </article>
+
+              <article className="rounded-[22px] border-2 border-orange-200 bg-white p-6 shadow-[0_10px_30px_rgba(15,23,42,0.05)] transition hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(249,115,22,0.12)]">
+                <span className="inline-flex rounded-full bg-orange-100 px-3 py-1 text-xs font-extrabold text-orange-600">
+                  Mời bạn bè
+                </span>
+                <h3 className="mt-4 text-xl font-black text-slate-950">
+                  Cả hai cùng có thưởng
+                </h3>
+                <p className="mt-3 text-sm leading-7 text-slate-500">
+                  Bạn mới có đơn đầu được duyệt: người mời{" "}
+                  <b className="text-[#ee4d2d]">+10.000đ</b>, bạn mới{" "}
+                  <b className="text-[#ee4d2d]">+10.000đ</b>. Mỗi cặp nhận một
+                  lần.
+                </p>
+                <Link
+                  href="/gioi-thieu-ban-be"
+                  className="mt-4 inline-flex text-sm font-extrabold text-[#ee4d2d] hover:underline"
+                >
+                  Lấy link mời →
+                </Link>
+              </article>
+
+              <article className="rounded-[22px] border-2 border-violet-200 bg-white p-6 shadow-[0_10px_30px_rgba(15,23,42,0.05)] transition hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(139,92,246,0.12)]">
+                <span className="inline-flex rounded-full bg-violet-100 px-3 py-1 text-xs font-extrabold text-violet-700">
+                  Top tuần
+                </span>
+                <h3 className="mt-4 text-xl font-black text-slate-950">
+                  Bảng xếp hạng
+                </h3>
+                <p className="mt-3 text-sm leading-7 text-slate-500">
+                  Xếp hạng mua sắm tuần này. Mua qua link hoàn tiền để leo top
+                  và nhận thêm phần thưởng.
+                </p>
+                <Link
+                  href="/dashboard/don-hang"
+                  className="mt-4 inline-flex text-sm font-extrabold text-violet-600 hover:underline"
+                >
+                  Xem bảng xếp hạng →
+                </Link>
+              </article>
             </div>
           </div>
         </section>

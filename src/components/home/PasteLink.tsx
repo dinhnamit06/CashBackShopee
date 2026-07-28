@@ -116,7 +116,7 @@ export default function PasteLink({ className, variant = "hero" }: PasteLinkProp
       {isHero && (
         <p className="mt-4 text-center text-sm text-muted">
           <span className="font-medium text-primary">Mẹo:</span> Paste link Shopee hoặc TikTok Shop để mua sắm nhận hoàn tiền.{" "}
-          <a href="/huong-dan" className="text-primary underline underline-offset-2">
+          <a href="/guide" className="text-primary underline underline-offset-2">
             Xem hướng dẫn
           </a>
         </p>

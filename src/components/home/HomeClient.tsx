@@ -287,7 +287,10 @@ export default function HomeClient() {
       </section>
 
       <main>
-        <section className="relative border-b border-orange-100/70 bg-[radial-gradient(circle_at_50%_0%,#fff0e8_0%,#fffaf7_42%,#fffdfa_72%)]">
+        <section
+          id="lay-link"
+          className="relative scroll-mt-24 border-b border-orange-100/70 bg-[radial-gradient(circle_at_50%_0%,#fff0e8_0%,#fffaf7_42%,#fffdfa_72%)]"
+        >
           <div className="absolute left-[8%] top-24 h-3 w-3 rounded-full bg-orange-300/70" />
           <div className="absolute right-[9%] top-32 h-5 w-5 rounded-full border-4 border-orange-200" />
           <div className="mx-auto max-w-7xl px-4 pb-14 pt-12 sm:px-6 sm:pt-16 lg:px-8">
@@ -382,7 +385,7 @@ export default function HomeClient() {
                       Hỗ trợ link sản phẩm shopee.vn và short link Shopee.
                     </p>
                     <Link
-                      href="/#cach-hoat-dong"
+                      href="/guide"
                       className="font-bold text-[#d94223] hover:underline"
                     >
                       Xem hướng dẫn

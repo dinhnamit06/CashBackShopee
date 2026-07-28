@@ -2,7 +2,7 @@ import Link from "next/link";
 
 const navItems = [
   { href: "/", label: "Trang chủ" },
-  { href: "/#cach-hoat-dong", label: "Cách dùng" },
+  { href: "/guide", label: "Cách dùng" },
   { href: "/hoan-tien", label: "Hoàn tiền" },
   { href: "/gioi-thieu-ban-be", label: "Mời bạn" },
 ];

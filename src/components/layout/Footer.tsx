@@ -24,8 +24,8 @@ export default function Footer() {
             <p className="text-sm font-extrabold text-slate-950">Khám phá</p>
             <ul className="mt-4 space-y-3 text-sm text-slate-500">
               <li>
-                <Link href="/#cach-hoat-dong" className="hover:text-[#ee4d2d]">
-                  Cách hoạt động
+                <Link href="/guide" className="hover:text-[#ee4d2d]">
+                  Hướng dẫn sử dụng
                 </Link>
               </li>
               <li>

@@ -11,7 +11,7 @@ export default function RutTienPage() {
   return (
     <div>
       <h1 className="text-lg font-extrabold text-foreground mb-2">Rút tiền</h1>
-      <p className="text-sm text-zinc-500 mb-4">Số dư: <strong className="text-green-600">{formatCurrency(balance)}</strong> · Rút tối thiểu 50.000đ</p>
+      <p className="text-sm text-zinc-500 mb-4">Số dư: <strong className="text-green-600">{formatCurrency(balance)}</strong> · Rút tối thiểu 20.000đ</p>
 
       {/* Auto toggle */}
       <div className="bg-white rounded-2xl border border-zinc-200 p-4 mb-4">
@@ -39,7 +39,7 @@ export default function RutTienPage() {
             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-zinc-400">VNĐ</span>
           </div>
           <div className="flex gap-2 mt-2">
-            {[100000, 200000, 500000].map((a) => (
+            {[50000, 100000, 200000, 500000].map((a) => (
               <button key={a} onClick={() => setAmount(String(a))}
                 className="px-3 py-1 text-xs text-primary border border-primary/30 rounded-lg hover:bg-primary-light">{formatCurrency(a)}</button>
             ))}
@@ -64,13 +64,13 @@ export default function RutTienPage() {
           <input type="text" placeholder="Nhập tên chủ TK" className="w-full px-4 py-3 text-sm border border-zinc-200 rounded-xl outline-none focus:border-primary" />
         </div>
 
-        <button disabled={!amount || Number(amount) < 50000 || Number(amount) > balance}
+        <button disabled={!amount || Number(amount) < 20000 || Number(amount) > balance}
           className="w-full py-3 text-sm font-bold text-white bg-primary hover:bg-primary-dark rounded-xl transition-colors disabled:opacity-50">
           Yêu cầu rút tiền
         </button>
 
         <div className="text-xs text-zinc-400 space-y-1">
-          <p>· Rút tối thiểu 50.000đ</p>
+          <p>· Rút tối thiểu 20.000đ</p>
           <p>· Thời gian xử lý 1-3 ngày làm việc</p>
           <p>· Tên chủ TK phải trùng với tên tài khoản</p>
         </div>

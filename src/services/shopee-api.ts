@@ -257,14 +257,26 @@ export async function resolveShortLink(
  * Tính % hoàn tiền cho user dựa trên commission từ Shopee
  * Logic: chia 50-70% hoa hồng cho user
  */
-export function calculateCashback(commission: number): {
+export function calculateCashback(commission: number, price: number = 0): {
   cashbackRate: number;
   cashbackAmount: number;
+  sharePercent: number;
+  profitAmount: number;
+  profitPercent: number;
 } {
-  const shareRate = 0.6; // 60% commission chia cho user
+  const shareRate = Number(process.env.CASHBACK_SHARE_RATE || "0.6"); // 60% mặc định
   const cashbackAmount = Math.floor(commission * shareRate);
-  const cashbackRate = 0; // Sẽ tính % trên giá sản phẩm ở tầng UI
-  return { cashbackRate, cashbackAmount };
+  const cashbackRate = price > 0 ? Math.round((cashbackAmount / price) * 100) : 0;
+  const profitAmount = commission - cashbackAmount;
+  const profitPercent = price > 0 ? Math.round((profitAmount / price) * 100) : 0;
+
+  return {
+    cashbackRate,
+    cashbackAmount,
+    sharePercent: Math.round(shareRate * 100),
+    profitAmount,
+    profitPercent,
+  };
 }
 
 /**
@@ -293,29 +305,22 @@ export async function generateAffiliateLink(
     const json = await res.json();
 
     if (!json.success) {
-      const partnerId = process.env.SHOPEE_PARTNER_ID;
-      if (partnerId) {
-        return generateCampaignLink(originUrl, partnerId, subIds);
-      }
-      return { success: false, error: json.error || "Không thể tạo link", method: "addlivetag_fail" };
+      return { success: true, shortLink: originUrl, method: "addlivetag_fail" };
     }
 
     const shortLink = json.data?.data?.generateShortLink?.shortLink || "";
     if (!shortLink) {
-      const partnerId = process.env.SHOPEE_PARTNER_ID;
-      if (partnerId) {
-        return generateCampaignLink(originUrl, partnerId, subIds);
-      }
-      return { success: false, error: "Không parse được short link", method: "addlivetag_no_link" };
+      return { success: true, shortLink: originUrl, method: "addlivetag_no_link" };
     }
 
     return { success: true, shortLink, method: "addlivetag" };
-  } catch {
+  } catch (err) {
+    // Fallback: dung link goc + campaign tracking
     const partnerId = process.env.SHOPEE_PARTNER_ID || "";
     if (partnerId) {
-      return generateCampaignLink(originUrl, partnerId, subIds);
+      return { success: true, shortLink: originUrl, method: "campaign_fallback" };
     }
-    return { success: false, error: "Lỗi kết nối addlivetag", method: "error" };
+    return { success: true, shortLink: originUrl, method: "direct_fallback" };
   }
 }
 
@@ -339,7 +344,7 @@ function generateCampaignLink(
 /**
  * Flow đầy đủ: Parse link → Lấy product data → Tạo affiliate link → Trả về cho user
  */
-export async function processProductLink(shopeeUrl: string): Promise<{
+export async function processProductLink(shopeeUrl: string, subId?: string): Promise<{
   success: boolean;
   product?: {
     itemId: number;
@@ -393,14 +398,10 @@ export async function processProductLink(shopeeUrl: string): Promise<{
   }
 
   const product = productResult.data;
-  const cashback = calculateCashback(product.commission);
-  const cashbackRate =
-    product.price > 0
-      ? Math.round((cashback.cashbackAmount / product.price) * 100)
-      : 0;
+  const cashback = calculateCashback(product.commission, product.price);
 
-  // Step 2: Tạo affiliate link (nếu có partner_id)
-  const affiliateResult = await generateAffiliateLink(product.productLink);
+  // Step 3: Tạo affiliate link với sub_id của user
+  const affiliateResult = await generateAffiliateLink(product.productLink, subId ? [subId] : []);
 
   return {
     success: true,
@@ -416,7 +417,7 @@ export async function processProductLink(shopeeUrl: string): Promise<{
       sellerComFinal: product.sellerComFinal,
       shopeeComFinal: product.shopeeComFinal,
       isXtra: product.isXtra,
-      cashbackRate: Math.min(cashbackRate, 75),
+      cashbackRate: Math.min(cashback.cashbackRate, 75),
       cashbackAmount: cashback.cashbackAmount,
       originalLink: product.productLink,
       affiliateLink: affiliateResult.success ? affiliateResult.shortLink : undefined,

@@ -2,15 +2,18 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import BotConnectCard from "@/components/BotConnectCard";
 import { inspectShopeeUrl } from "@/lib/shopee-url";
 
 type ProductPreview = {
   productName?: string;
+  productImage?: string;
   price?: number;
   estimatedCashback?: number;
   cashbackRate?: number;
-  shortUrl?: string;
+  shortUrl?: string | null;
+  subId?: string;
 };
 
 const quickSteps = [
@@ -166,18 +169,15 @@ export default function HomeClient() {
         return;
       }
 
-      const affiliateUrl =
-        typeof json.data.affiliateLink === "string"
-          ? inspectShopeeUrl(json.data.affiliateLink)
-          : null;
-
       setPreview({
         productName:
           typeof json.data.title === "string" ? json.data.title : "Sản phẩm Shopee",
+        productImage: typeof json.data.image === "string" ? json.data.image : "",
         price: Number(json.data.price) || 0,
         estimatedCashback: Number(json.data.cashbackAmount) || 0,
         cashbackRate: Number(json.data.cashbackRate) || 0,
-        shortUrl: affiliateUrl?.url,
+        shortUrl: typeof json.data.affiliateLink === "string" ? json.data.affiliateLink : null,
+        subId: typeof json.data.subId === "string" ? json.data.subId : undefined,
       });
     } catch {
       setError("Kết nối đang bận. Vui lòng thử lại sau ít phút.");
@@ -231,10 +231,11 @@ export default function HomeClient() {
 
             <div className="mt-5 space-y-3">
               {[
-                ["1", "Xóa sản phẩm cũ khỏi giỏ trước khi bắt đầu."],
-                ["2", "Chỉ mở link hoàn tiền vừa tạo từ tài khoản của bạn."],
-                ["3", "Thanh toán trong 20–30 phút, không mở link khác giữa chừng."],
-                ["4", "Tắt Adblock; có thể dùng voucher và Shopee Xu như thường."],
+                ["1", "Xóa sản phẩm đó khỏi giỏ (nếu có) — xóa SP khỏi giỏ trước → bấm short link → rồi mới thêm giỏ hoặc mua ngay."],
+                ["2", "Chỉ bấm short link của bạn — dùng link bot/web gửi. Không mở link SP gốc, không bấm link aff của người khác."],
+                ["3", "Không xem live / video khi mua — xem live hoặc video giữa chừng dễ mất hoa hồng, mua xong rồi xem."],
+                ["4", "Không áp mã giảm của người khác — sau khi bấm link mình, đừng dùng voucher/mã của KOL hay người khác."],
+                ["5", "Mua trong 20–30 phút + tắt Adblock — thanh toán sớm sau khi mở short link. Adblock có thể làm mất tracking."],
               ].map(([number, text]) => (
                 <div
                   key={number}
@@ -260,31 +261,6 @@ export default function HomeClient() {
           </div>
         </div>
       )}
-
-      <section className="relative overflow-hidden bg-gradient-to-r from-[#f1532f] via-[#f2673b] to-[#ff8b45] text-white">
-        <div className="absolute -left-10 -top-16 h-44 w-44 rounded-full border-[30px] border-white/8" />
-        <div className="absolute right-[8%] top-1/2 h-36 w-36 -translate-y-1/2 rotate-12 rounded-[32px] bg-white/10" />
-        <div className="relative mx-auto flex max-w-7xl flex-col items-start justify-between gap-7 px-4 py-7 sm:px-6 md:flex-row md:items-center lg:px-8">
-          <div>
-            <span className="rounded-full bg-white/18 px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.16em]">
-              Ưu đãi thành viên mới
-            </span>
-            <h2 className="mt-3 text-xl font-extrabold tracking-[-0.03em] sm:text-2xl">
-              Hoàn cao hơn cho 3 đơn đầu tiên
-            </h2>
-            <p className="mt-1 text-sm text-white/82">
-              Đăng ký miễn phí, tạo link và bắt đầu tích lũy từ lần mua đầu.
-            </p>
-          </div>
-          <Link
-            href="/register"
-            className="inline-flex shrink-0 items-center gap-3 rounded-2xl bg-white px-5 py-3 text-sm font-extrabold text-[#dd3f20] shadow-xl shadow-red-950/10 transition hover:-translate-y-0.5"
-          >
-            Nhận ưu đãi
-            <span aria-hidden="true">→</span>
-          </Link>
-        </div>
-      </section>
 
       <main>
         <section
@@ -402,71 +378,70 @@ export default function HomeClient() {
 
                   {preview && (
                     <div className="mt-5 overflow-hidden rounded-2xl border border-emerald-100 bg-emerald-50/60 text-left">
-                      <div className="p-4 sm:p-5">
-                        <span className="badge bg-emerald-100 text-emerald-700">
-                          ✓ Có thể nhận hoàn tiền
-                        </span>
-                        <h3 className="mt-3 line-clamp-2 text-base font-extrabold text-slate-900">
-                          {preview.productName}
-                        </h3>
-                        <div className="mt-4 grid grid-cols-2 gap-3">
-                          <div className="rounded-xl bg-white p-3">
-                            <p className="text-xs text-slate-500">Giá sản phẩm</p>
-                            <p className="mt-1 font-extrabold text-slate-900">
-                              {preview.price
-                                ? formatCurrency(preview.price)
-                                : "Đang cập nhật"}
-                            </p>
+                      <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
+                        {preview.productImage && (
+                          <div className="h-20 w-20 rounded-xl overflow-hidden bg-white border border-slate-100 shrink-0 relative">
+                            <Image
+                              src={preview.productImage}
+                              alt=""
+                              fill
+                              className="object-cover"
+                              sizes="80px"
+                            />
                           </div>
-                          <div className="rounded-xl bg-white p-3">
-                            <p className="text-xs text-slate-500">Hoàn dự kiến</p>
-                            <p className="mt-1 font-extrabold text-emerald-600">
-                              {preview.estimatedCashback
-                                ? `~${formatCurrency(preview.estimatedCashback)}`
-                                : "Theo đối soát"}
-                            </p>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="mb-1 flex flex-wrap items-center gap-2">
+                            <span className="badge bg-emerald-100 text-emerald-700">
+                              ✓ Có thể nhận hoàn tiền
+                            </span>
+                          </div>
+                          <h3 className="font-semibold text-slate-900 line-clamp-2">
+                            {preview.productName}
+                          </h3>
+                          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-600">
+                            <span>Giá: <b>{preview.price ? formatCurrency(preview.price) : "Đang cập nhật"}</b></span>
+                            <span>Ước tính hoàn: <b className="text-emerald-600">{preview.estimatedCashback ? `~${formatCurrency(preview.estimatedCashback)}` : "Theo đối soát"}</b></span>
                           </div>
                         </div>
                       </div>
 
-                      <div className="border-t border-emerald-100 bg-white/80 p-4 sm:p-5">
+                      <div className="border-t border-emerald-100 bg-white/80 px-4 py-4 space-y-4">
                         {preview.shortUrl ? (
-                          <div className="flex flex-col gap-3 sm:flex-row">
-                            <input
-                              readOnly
-                              value={preview.shortUrl}
-                              className="input flex-1 text-xs"
-                              aria-label="Link hoàn tiền đã tạo"
-                              onFocus={(event) => event.currentTarget.select()}
-                            />
-                            <button
-                              type="button"
-                              onClick={handleCopy}
-                              className="btn-secondary shrink-0 text-sm"
-                            >
-                              {copied ? "Đã sao chép ✓" : "Sao chép link"}
-                            </button>
-                            <a
-                              href={preview.shortUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="btn-primary shrink-0 text-sm"
-                            >
-                              Mua ngay
-                            </a>
-                          </div>
+                          <>
+                            <div className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+                              <b>Bước tiếp theo:</b> Bấm <b>Mua ngay</b> (short link) hoặc copy short link → mở Shopee → mua trong <b>20–30 phút</b>. Short link mới ghi lượt click để đối soát.
+                            </div>
+                            <div>
+                              <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                                Short link hoàn tiền (dùng link này để mua)
+                              </div>
+                              <div className="flex flex-col gap-2 sm:flex-row">
+                                <input readOnly value={preview.shortUrl} className="input font-mono text-xs flex-1" onFocus={(e) => e.currentTarget.select()} />
+                                <button type="button" onClick={handleCopy} className="btn-secondary text-sm whitespace-nowrap">
+                                  {copied ? "Đã copy ✓" : "Copy short link"}
+                                </button>
+                                <a href={preview.shortUrl} target="_blank" rel="noreferrer" className="btn-primary text-sm text-center whitespace-nowrap">
+                                  Mua ngay trên Shopee
+                                </a>
+                              </div>
+                            </div>
+                            {preview.subId && (
+                              <p className="text-xs text-slate-400">
+                                Mã theo dõi (tự động): <code className="font-semibold text-shopee">{preview.subId}</code>
+                              </p>
+                            )}
+                          </>
                         ) : (
-                          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                            <p className="text-sm leading-6 text-slate-600">
-                              Đăng nhập để tạo link theo dõi riêng và ghi nhận
-                              đơn vào đúng ví của bạn.
-                            </p>
-                            <Link
-                              href="/login"
-                              className="btn-primary shrink-0 text-sm"
-                            >
-                              Đăng nhập lấy link
-                            </Link>
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                            <div className="flex-1">
+                              <p className="mb-1 text-sm font-semibold text-slate-800">Đăng nhập để tạo link theo dõi riêng</p>
+                              <p className="text-sm text-slate-500">Link sẽ gắn mã riêng — đơn mua sau này cũng vào đúng ví của bạn.</p>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              <Link href="/login" className="btn-primary text-sm">Đăng nhập</Link>
+                              <Link href="/register" className="btn-secondary text-sm">Đăng ký miễn phí</Link>
+                            </div>
                           </div>
                         )}
                       </div>

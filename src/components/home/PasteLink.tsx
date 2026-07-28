@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -19,109 +20,57 @@ export default function PasteLink({ className, variant = "hero" }: PasteLinkProp
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = link.trim();
-
-    if (!trimmed) {
-      setError("Vui lòng nhập link sản phẩm");
-      return;
-    }
+    if (!trimmed) { setError("Vui lòng nhập link sản phẩm"); return; }
     if (!inspectShopeeUrl(trimmed)) {
-      setError("Link không hợp lệ. Vui lòng dán đúng link sản phẩm Shopee");
-      return;
+      setError("Link không hợp lệ. Vui lòng dán đúng link sản phẩm Shopee"); return;
     }
-
-    setError("");
-    setLoading(true);
-
+    setError(""); setLoading(true);
     try {
-      // Gọi API lấy thông tin sản phẩm
       const res = await fetch(`/api/product?url=${encodeURIComponent(trimmed)}`);
       const json = await res.json();
-
-      if (!json.success) {
-        setError(json.error || "Không thể lấy thông tin sản phẩm");
-        setLoading(false);
-        return;
-      }
-
-      // Chuyển hướng sang trang chi tiết với data
-      const params = new URLSearchParams({
-        link: trimmed,
-        data: JSON.stringify(json.data),
-      });
-      router.push(`/hoan-tien?${params.toString()}`);
+      if (!json.success) { setError(json.error || "Không thể lấy thông tin"); setLoading(false); return; }
+      router.push(`/hoan-tien?link=${encodeURIComponent(trimmed)}&data=${encodeURIComponent(JSON.stringify(json.data))}`);
     } catch {
-      // Fallback: chuyển hướng không có data
       router.push(`/hoan-tien?link=${encodeURIComponent(trimmed)}`);
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
 
-  const isHero = variant === "hero";
-
   return (
-    <form
-      onSubmit={handleSubmit}
+    <form onSubmit={handleSubmit} noValidate
       className={cn(
-        "w-full",
-        isHero
-          ? "max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-6 md:p-8"
-          : "bg-primary-light rounded-xl p-4",
+        "relative rounded-[28px] border border-orange-100 bg-white p-4 shadow-[0_28px_80px_rgba(172,65,24,0.14)] sm:p-6",
         className
-      )}
-    >
-      <div className={cn("flex flex-col gap-3", isHero ? "sm:flex-row sm:gap-0" : "")}>
-        <div className={cn("flex-1 relative", isHero ? "sm:pr-2" : "")}>
+      )}>
+      <label htmlFor="shopee-link" className="mb-2.5 block text-left text-sm font-extrabold text-slate-800">
+        Link sản phẩm Shopee
+      </label>
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="relative flex-1">
+          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-lg" aria-hidden="true">🔗</span>
           <input
-            type="text"
+            id="shopee-link"
+            type="url"
+            maxLength={2048}
             value={link}
-            onChange={(e) => {
-              setLink(e.target.value);
-              setError("");
-            }}
-            placeholder="Dán link sản phẩm Shopee..."
-            className={cn(
-              "w-full border-2 rounded-xl outline-none transition-colors",
-              error ? "border-red-400" : "border-border focus:border-primary",
-              isHero ? "px-5 py-4 text-base" : "px-4 py-3 text-sm"
-            )}
+            onChange={(e) => { setLink(e.target.value); setError(""); }}
+            placeholder="Dán link Shopee tại đây..."
+            autoComplete="off"
+            spellCheck={false}
             disabled={loading}
+            className="input min-h-14 !pl-12 text-sm"
+            aria-describedby="link-hint link-status"
           />
-          {error && (
-            <p className="absolute -bottom-5 left-1 text-xs text-red-500">{error}</p>
-          )}
         </div>
-        <button
-          type="submit"
-          disabled={loading}
-          className={cn(
-            "font-semibold text-white bg-primary hover:bg-primary-dark rounded-xl transition-colors shrink-0 disabled:opacity-60",
-            isHero ? "px-8 py-4 text-base" : "px-6 py-3 text-sm"
-          )}
-        >
-          {loading ? (
-            <span className="flex items-center gap-2">
-              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-              </svg>
-              Đang tìm...
-            </span>
-          ) : isHero ? (
-            "Tìm hoàn tiền ngay"
-          ) : (
-            "Kiểm tra hoàn tiền"
-          )}
+        <button type="submit" disabled={loading}
+          className="btn-primary min-h-14 shrink-0 px-6 sm:min-w-52">
+          {loading ? "Đang xử lý..." : <>Lấy link hoàn tiền<span aria-hidden="true">→</span></>}
         </button>
       </div>
-      {isHero && (
-        <p className="mt-4 text-center text-sm text-muted">
-          <span className="font-medium text-primary">Mẹo:</span> Dán link Shopee để mua sắm nhận hoàn tiền.{" "}
-          <a href="/guide" className="text-primary underline underline-offset-2">
-            Xem hướng dẫn
-          </a>
-        </p>
-      )}
+      <div className="mt-3 flex flex-col gap-2 text-left text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+        <p id="link-hint">Hỗ trợ link sản phẩm shopee.vn và short link Shopee.</p>
+        <Link className="font-bold text-[#d94223] hover:underline" href="/guide">Xem hướng dẫn</Link>
+      </div>
+      {error && <p id="link-status" className="mt-2 text-xs text-red-500" role="alert">{error}</p>}
     </form>
   );
 }

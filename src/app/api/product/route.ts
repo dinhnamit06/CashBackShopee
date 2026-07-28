@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { inspectShopeeUrl } from "@/lib/shopee-url";
 import { processProductLink } from "@/services/shopee-api";
+import { getUserSubId } from "@/services/tracking";
+import { prisma } from "@/lib/prisma";
+
+function generateSlug(): string {
+  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+  let s = "";
+  for (let i = 0; i < 8; i++) s += chars[Math.floor(Math.random() * chars.length)];
+  return s;
+}
 
 /**
  * GET /api/product?url=https://shopee.vn/product/123/456
@@ -39,12 +48,28 @@ export async function GET(req: NextRequest) {
 
     // Ưu tiên URL để lấy thông tin và tạo link affiliate.
     if (inspectedUrl) {
-      const result = await processProductLink(inspectedUrl.url);
+      const subId = await getUserSubId();
+      const result = await processProductLink(inspectedUrl.url, subId || undefined);
       if (!result.success || !result.product) {
         return NextResponse.json(
           { success: false, error: result.error || "Không tìm thấy sản phẩm" },
           { status: 404 }
         );
+      }
+
+      // Tạo short link riêng của web khi đã login
+      const affiliateLink = result.product.affiliateLink || null;
+      let shortUrl = affiliateLink;
+
+      if (subId) {
+        const targetUrl = affiliateLink || result.product.originalLink;
+        const slug = generateSlug();
+        await prisma.shortLink.create({
+          data: { slug, targetUrl, userId: null, subId },
+        });
+        const host = req.headers.get("host") || "localhost:3000";
+        const protocol = host.includes("localhost") ? "http" : "https";
+        shortUrl = `${protocol}://${host}/r/${slug}`;
       }
 
       return NextResponse.json({
@@ -56,7 +81,7 @@ export async function GET(req: NextRequest) {
           price: result.product.price,
           image: result.product.imageUrl,
           productLink: result.product.originalLink,
-          affiliateLink: result.product.affiliateLink || null,
+          affiliateLink: shortUrl,
           rating: Number(result.product.rating) || 0,
           sales: result.product.sales,
           commission: result.product.commission,
@@ -65,6 +90,7 @@ export async function GET(req: NextRequest) {
           isXtra: result.product.isXtra,
           cashbackRate: result.product.cashbackRate,
           cashbackAmount: result.product.cashbackAmount,
+          subId: subId || null,
         },
       });
     }
@@ -81,10 +107,7 @@ export async function GET(req: NextRequest) {
     }
 
     const product = result.data;
-    const cashback = calculateCashback(product.commission);
-    const cashbackRate = product.price > 0
-      ? Math.round((cashback.cashbackAmount / product.price) * 100)
-      : 0;
+    const cashback = calculateCashback(product.commission, product.price);
 
     return NextResponse.json({
       success: true,
@@ -102,7 +125,7 @@ export async function GET(req: NextRequest) {
         sellerComFinal: product.sellerComFinal,
         shopeeComFinal: product.shopeeComFinal,
         isXtra: product.isXtra,
-        cashbackRate: Math.min(cashbackRate, 75),
+        cashbackRate: Math.min(cashback.cashbackRate, 75),
         cashbackAmount: cashback.cashbackAmount,
       },
     });

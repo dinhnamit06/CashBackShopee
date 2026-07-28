@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  password       String
+  name           String   @default("")
+  phone          String   @default("")
+  balance        Int      @default(0)
+  totalEarned    Int      @default(0)
+  subId          String   @unique
+  linkCode       String   @unique
+  referralCode   String   @unique
+  referredBy     String?
+  role           String   @default("user")
+  bankName       String   @default("")
+  bankAccount    String   @default("")
+  bankOwner      String   @default("")
+  autoWithdraw   Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  orders          Order[]
+  transactions    Transaction[]
+  withdraws       Withdraw[]
+  referralsMade   Referral[]  @relation("Referrer")
+  referralsGot    Referral[]  @relation("Referred")
+}
+
+model Order {
+  id              String   @id @default(cuid())
+  userId          String
+  shopeeOrderSn   String?
+  productName     String
+  productImage    String   @default("")
+  shopName        String   @default("")
+  price           Int      @default(0)
+  commission      Int      @default(0)
+  cashbackAmount  Int      @default(0)
+  cashbackRate    Int      @default(0)
+  status          String   @default("pending")
+  subId           String   @default("")
+  clickTime       DateTime?
+  purchaseTime    DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Transaction {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  amount    Int
+  orderId   String?
+  desc      String   @default("")
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Withdraw {
+  id         String   @id @default(cuid())
+  userId     String
+  amount     Int
+  bankName   String
+  bankAccount String
+  bankOwner  String
+  status     String   @default("pending")
+  note       String   @default("")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Referral {
+  id          String   @id @default(cuid())
+  referrerId  String
+  referredId  String
+  rewardAmount Int     @default(0)
+  createdAt   DateTime @default(now())
+
+  referrer User @relation("Referrer", fields: [referrerId], references: [id])
+  referred User @relation("Referred", fields: [referredId], references: [id])
+}
+
+model ShortLink {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  targetUrl   String
+  userId      String?
+  subId       String   @default("")
+  clicks      Int      @default(0)
+  createdAt   DateTime @default(now())
+}

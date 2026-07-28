@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { inspectShopeeUrl } from "@/lib/shopee-url";
 
 interface PasteLinkProps {
   className?: string;
@@ -23,8 +24,8 @@ export default function PasteLink({ className, variant = "hero" }: PasteLinkProp
       setError("Vui lòng nhập link sản phẩm");
       return;
     }
-    if (!trimmed.includes("shopee.vn") && !trimmed.includes("shope.ee") && !trimmed.includes("tiktok.com")) {
-      setError("Link không hợp lệ. Vui lòng nhập link Shopee hoặc TikTok Shop");
+    if (!inspectShopeeUrl(trimmed)) {
+      setError("Link không hợp lệ. Vui lòng dán đúng link sản phẩm Shopee");
       return;
     }
 
@@ -78,7 +79,7 @@ export default function PasteLink({ className, variant = "hero" }: PasteLinkProp
               setLink(e.target.value);
               setError("");
             }}
-            placeholder="Dan link san pham Shopee hoac TikTok Shop..."
+            placeholder="Dán link sản phẩm Shopee..."
             className={cn(
               "w-full border-2 rounded-xl outline-none transition-colors",
               error ? "border-red-400" : "border-border focus:border-primary",
@@ -115,7 +116,7 @@ export default function PasteLink({ className, variant = "hero" }: PasteLinkProp
       </div>
       {isHero && (
         <p className="mt-4 text-center text-sm text-muted">
-          <span className="font-medium text-primary">Mẹo:</span> Paste link Shopee hoặc TikTok Shop để mua sắm nhận hoàn tiền.{" "}
+          <span className="font-medium text-primary">Mẹo:</span> Dán link Shopee để mua sắm nhận hoàn tiền.{" "}
           <a href="/guide" className="text-primary underline underline-offset-2">
             Xem hướng dẫn
           </a>

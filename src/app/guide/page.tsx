@@ -1,5 +1,10 @@
 import Link from "next/link";
 import BotConnectCard from "@/components/BotConnectCard";
+import PasteLink from "@/components/home/PasteLink";
+import {
+  DEMO_TELEGRAM_BOT_URL,
+  DEMO_ZALO_GROUP_URL,
+} from "@/lib/bot-link";
 
 export const metadata = {
   title: "Cách dùng HoanTien",
@@ -66,16 +71,40 @@ export default function GuidePage() {
             Hướng dẫn từ A–Z
           </span>
           <h1 className="mx-auto mt-5 max-w-4xl text-4xl font-black leading-tight tracking-[-0.05em] sm:text-5xl">
-            Mua qua link hoàn tiền Shopee đúng cách
+            Hướng dẫn hoàn tiền Shopee từng bước (2026)
           </h1>
           <p className="mx-auto mt-5 max-w-3xl text-sm leading-7 text-slate-600 sm:text-base">
-            Chỉ cần đăng nhập, lấy short link riêng rồi mua như bình thường.
-            Làm theo checklist bên dưới để đơn được ghi nhận đúng vào ví của
-            bạn.
+            Cách lấy link hoàn tiền Shopee, cashback về ví, liên kết bot
+            Telegram/Zalo, theo dõi hold minh bạch và rút tiền từ 50.000đ.
           </p>
 
-          <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-            <Link href="/#lay-link" className="btn-primary">
+          <div className="mx-auto mt-7 grid max-w-2xl gap-3 sm:grid-cols-2">
+            <a
+              href={DEMO_TELEGRAM_BOT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 to-sky-600 px-5 text-sm font-extrabold text-white shadow-[0_10px_24px_rgba(14,165,233,0.22)] transition hover:-translate-y-0.5"
+            >
+              ✈ Telegram bot
+              <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px]">
+                Demo
+              </span>
+            </a>
+            <a
+              href={DEMO_ZALO_GROUP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 text-sm font-extrabold text-white shadow-[0_10px_24px_rgba(37,99,235,0.2)] transition hover:-translate-y-0.5"
+            >
+              💬 Zalo bot
+              <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px]">
+                Demo
+              </span>
+            </a>
+          </div>
+
+          <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row">
+            <Link href="#thu-lay-link" className="btn-primary">
               Thử lấy link ngay
               <span aria-hidden="true">→</span>
             </Link>
@@ -201,6 +230,27 @@ export default function GuidePage() {
             </p>
           </div>
           <BotConnectCard demo />
+        </div>
+      </section>
+
+      <section
+        id="thu-lay-link"
+        className="scroll-mt-24 bg-gradient-to-b from-orange-50/70 to-white py-16 sm:py-20"
+      >
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#ee4d2d]">
+              Thử ngay
+            </p>
+            <h2 className="mt-3 text-3xl font-black tracking-[-0.045em] sm:text-4xl">
+              Dán link Shopee để kiểm tra
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-slate-500">
+              Hệ thống kiểm tra đúng định dạng link trước khi lấy thông tin sản
+              phẩm và tạo đường dẫn hoàn tiền.
+            </p>
+          </div>
+          <PasteLink className="mt-8" />
         </div>
       </section>
 

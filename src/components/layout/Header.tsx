@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { isNavItemActive } from "@/lib/navigation";
 
 const navItems = [
   { href: "/", label: "Trang chủ" },
@@ -8,6 +12,8 @@ const navItems = [
 ];
 
 export default function Header() {
+  const pathname = usePathname();
+
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/92 backdrop-blur-xl">
       <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-5 px-4 sm:px-6 lg:px-8">
@@ -25,19 +31,24 @@ export default function Header() {
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex" aria-label="Điều hướng chính">
-          {navItems.map((item, index) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors ${
-                index === 0
-                  ? "bg-orange-50 text-[#ee4d2d]"
-                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"
-              }`}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const isActive = isNavItemActive(pathname, item.href);
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={isActive ? "page" : undefined}
+                className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors ${
+                  isActive
+                    ? "bg-orange-50 text-[#ee4d2d]"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"
+                }`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="flex items-center gap-2">

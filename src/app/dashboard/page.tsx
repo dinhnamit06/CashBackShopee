@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import BotConnectCard from "@/components/BotConnectCard";
 import { formatCurrency } from "@/lib/utils";
 
 export default function DashboardPage() {
@@ -12,6 +13,7 @@ export default function DashboardPage() {
   const balance = 1250000;
   const totalEarned = 3450000;
   const pendingOrders = 5;
+  const demoBotLinkCode = "123456";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,6 +85,10 @@ export default function DashboardPage() {
         <p className="text-xs text-zinc-400 mt-3">
           Hỗ trợ link <strong>shopee.vn</strong> và <strong>shope.ee</strong>
         </p>
+      </div>
+
+      <div className="mb-6">
+        <BotConnectCard linkCode={demoBotLinkCode} demo />
       </div>
 
       {/* Recent Orders */}

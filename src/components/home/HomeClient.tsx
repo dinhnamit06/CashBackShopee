@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import BotConnectCard from "@/components/BotConnectCard";
 import { estimateCashback } from "@/lib/cashback";
 import { inspectShopeeUrl } from "@/lib/shopee-url";
 
@@ -479,6 +480,10 @@ export default function HomeClient() {
               </div>
             </div>
 
+            <div className="mx-auto mt-6 max-w-5xl">
+              <BotConnectCard demo />
+            </div>
+
             <div className="mx-auto mt-8 flex max-w-3xl flex-wrap items-center justify-center gap-x-7 gap-y-3 text-xs font-semibold text-slate-500">
               <span>✓ Không mất phí sử dụng</span>
               <span>✓ Theo dõi đơn minh bạch</span>
@@ -532,42 +537,29 @@ export default function HomeClient() {
           <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_0.92fr] lg:items-center lg:px-8">
             <div>
               <span className="inline-flex rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold text-orange-200">
-                Mua nhanh trên điện thoại
+                Ước tính nhanh
               </span>
               <h2 className="mt-5 max-w-xl text-3xl font-black leading-tight tracking-[-0.045em] sm:text-4xl">
-                Lấy link ngay trên Telegram hoặc Zalo.
+                Kiểm tra số tiền được hoàn.
               </h2>
               <p className="mt-5 max-w-xl text-sm leading-7 text-slate-300 sm:text-base">
-                Liên kết bot một lần với ví HoanTien. Sau đó chỉ cần dán link
-                sản phẩm vào chat để nhận short link và mua ngay.
+                Mức hoàn phụ thuộc ngành hàng, chiến dịch và hoa hồng thực tế
+                được Shopee đối soát. Công cụ bên cạnh chỉ dùng để tham khảo.
               </p>
-              <div className="mt-7 max-w-xl space-y-2.5">
+              <div className="mt-8 grid max-w-xl grid-cols-3 gap-3">
                 {[
-                  "Đăng ký hoặc đăng nhập ví chính",
-                  "Tạo mã liên kết 6 số trong Dashboard",
-                  "Dán link Shopee vào bot → nhận link hoàn tiền",
-                ].map((item, index) => (
+                  ["0đ", "Phí sử dụng"],
+                  ["24/7", "Tạo link"],
+                  ["1 ví", "Theo dõi tất cả"],
+                ].map(([value, label]) => (
                   <div
-                    key={item}
-                    className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3"
+                    key={label}
+                    className="rounded-2xl border border-white/10 bg-white/5 p-4"
                   >
-                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-orange-400 text-xs font-black text-slate-950">
-                      {index + 1}
-                    </span>
-                    <p className="text-sm font-semibold text-slate-200">{item}</p>
+                    <p className="text-xl font-black text-white">{value}</p>
+                    <p className="mt-1 text-[11px] text-slate-400">{label}</p>
                   </div>
                 ))}
-              </div>
-              <div className="mt-5 flex flex-wrap gap-3">
-                <span className="rounded-xl bg-white/10 px-4 py-2.5 text-xs font-bold text-slate-300">
-                  Telegram bot đang cập nhật
-                </span>
-                <Link
-                  href="/dashboard"
-                  className="rounded-xl bg-white px-4 py-2.5 text-xs font-extrabold text-slate-900 transition hover:bg-orange-50"
-                >
-                  Liên kết tài khoản →
-                </Link>
               </div>
             </div>
 

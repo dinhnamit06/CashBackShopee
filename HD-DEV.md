@@ -7,6 +7,16 @@ Duoi day la tat ca nhung gi ban can de bat dau.
 
 ## 1. CAI DAT MOI TRUONG
 
+### Cài thư viện
+```bash
+npm install
+npm install prisma @prisma/client bcryptjs jsonwebtoken framer-motion
+npm install -D @types/bcryptjs @types/jsonwebtoken
+npx prisma generate
+npx prisma db push
+```
+
+
 ### Clone code ve may
 ```bash
 git clone https://github.com/USERNAME/hoantien-app.git

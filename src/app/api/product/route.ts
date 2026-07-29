@@ -57,9 +57,9 @@ export async function GET(req: NextRequest) {
         );
       }
 
-      // Tạo short link riêng của web khi đã login
+      // Chỉ tạo short link khi đã login (có subId)
       const affiliateLink = result.product.affiliateLink || null;
-      let shortUrl = affiliateLink;
+      let shortUrl: string | null = null;
 
       if (subId) {
         const targetUrl = affiliateLink || result.product.originalLink;

@@ -101,7 +101,7 @@ export default function DashboardPage() {
           {[
             "Lấy link hoàn tiền — dán link Shopee vào ô phía dưới → Copy → Mua.",
             `Tuỳ chọn: gắn bot để chat lấy link — copy lệnh \`/lienket ${user?.linkCode || "..."}\` gửi vào bot.`,
-            "Xem Đơn hàng · Rút tiền khi có số dư (hold 7 ngày).",
+            "Xem Đơn hàng · Rút tiền khi có số dư.",
           ].map((text, i) => (
             <div key={i} className="flex gap-2 bg-slate-50 rounded-xl p-3">
               <span className="shrink-0 w-6 h-6 rounded-full bg-shopee text-white text-xs flex items-center justify-center font-bold">{i + 1}</span>

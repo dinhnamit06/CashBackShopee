@@ -1,0 +1,66 @@
+PHAN CONG THUYET TRINH NHOM 5 NGUOI
+
+Chu de: ..................................................
+Thoi luong du kien: 25 phut
+So thanh vien: 5 nguoi
+Nhom truong: Toi
+
+1. Toi - Nhom truong
+Vai tro: Gioi thieu va dieu phoi chung
+Thoi gian: 3 phut
+Noi dung trinh bay:
+- Chao thay/co va cac ban.
+- Gioi thieu ten nhom va chu de thuyet trinh.
+- Neu muc tieu cua bai thuyet trinh.
+- Gioi thieu ngan gon cac phan se trinh bay.
+- Chuyen loi cho thanh vien tiep theo.
+
+2. Thanh vien 2
+Vai tro: Trinh bay noi dung phan 1
+Thoi gian: 5 phut
+Noi dung trinh bay:
+- Gioi thieu khai niem hoac noi dung chinh dau tien.
+- Giai thich ngan gon cach hoat dong/y nghia cua phan nay.
+- Dua ra vi du minh hoa neu can.
+- Chuyen loi cho thanh vien 3.
+
+3. Thanh vien 3
+Vai tro: Trinh bay noi dung phan 2
+Thoi gian: 5 phut
+Noi dung trinh bay:
+- Trinh bay cac buoc/quy trinh thuc hien.
+- Neu cac diem quan trong can chu y.
+- Giai thich ket qua mong muon sau khi thuc hien.
+- Chuyen loi cho thanh vien 4.
+
+4. Thanh vien 4
+Vai tro: Tong hop va ket luan truoc demo
+Thoi gian: 4 phut
+Noi dung trinh bay:
+- Tom tat lai cac noi dung chinh cua nhom.
+- Neu loi ich hoac ket qua dat duoc.
+- Dan sang phan demo: "Sau day, thanh vien 5 se demo quy trinh thuc hien thuc te."
+
+5. Thanh vien 5
+Vai tro: Demo cuoi bai
+Thoi gian: 8 phut
+Noi dung thuc hien:
+- Mo man hinh/phan mem/trang web can demo.
+- Thuc hien tung buoc cham va ro rang.
+- Vua thao tac vua noi ngan gon noi dung dang lam.
+- Cho thay ket qua sau khi demo.
+- Ket thuc bang loi cam on.
+
+PHAN CHIA THOI GIAN
+- Toi: 3 phut
+- Thanh vien 2: 5 phut
+- Thanh vien 3: 5 phut
+- Thanh vien 4: 4 phut
+- Thanh vien 5 demo: 8 phut
+- Tong cong: 25 phut
+
+GHI CHU KHI QUAY VIDEO
+- Nen de mot nguoi quay man hinh/de record chung de file nhe va de quan ly.
+- Demo nen dat o phan cuoi de nguoi xem hieu ly thuyet truoc roi moi xem thao tac.
+- Moi nguoi nen noi ngan gon, dung thoi gian da chia.
+- Neu may yeu, quay 480p, 10-15 FPS, bitrate 200-300 Kbps.

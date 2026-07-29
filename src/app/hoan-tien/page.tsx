@@ -22,8 +22,7 @@ export default function HoanTienPage() {
 
         <div className="mt-8 bg-white rounded-2xl border border-zinc-200 p-4">
           <p className="text-xs text-muted leading-relaxed">
-            Sau khi mua hàng, hệ thống sẽ ghi nhận đơn trong <strong>24h</strong>.
-            Tiền hoàn có thể rút về tài khoản ngân hàng hoặc MoMo sau <strong>5-7 ngày</strong>.
+            Sau khi mua hàng, hệ thống sẽ ghi nhận đơn và hoàn tiền về ví của bạn.
           </p>
         </div>
       </div>

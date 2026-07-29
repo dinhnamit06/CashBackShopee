@@ -12,7 +12,7 @@ const steps = [
   { n: "1", title: "Đăng ký tài khoản", desc: "Tạo tài khoản miễn phí với email và mật khẩu. Đây là ví chính của bạn." },
   { n: "2", title: "Dán link sản phẩm", desc: "Copy link Shopee, dán vào ô trên trang chủ. Hệ thống tự động tính hoàn tiền." },
   { n: "3", title: "Mua qua short link", desc: "Xóa SP khỏi giỏ → bấm short link → mua trong 20–30 phút. Tắt Adblock." },
-  { n: "4", title: "Tiền vào ví", desc: "Đơn ghi nhận sau 24h. Sau 5-7 ngày đối soát, tiền tự động vào số dư." },
+  { n: "4", title: "Tiền vào ví", desc: "Shopee xác nhận hoa hồng → hệ thống tự động cộng vào ví của bạn." },
   { n: "5", title: "Rút tiền", desc: "Rút về ngân hàng hoặc MoMo khi đủ 20.000đ. Xử lý trong 1-3 ngày." },
 ];
 
@@ -26,7 +26,7 @@ const checklist = [
 const faqArticles = [
   { id: "what-is", title: "Hoàn tiền Shopee là gì?", answer: "Bạn mua hàng qua short link của HoanTien. Shopee trả hoa hồng affiliate cho chúng tôi. Chúng tôi chia lại 60% hoa hồng đó cho bạn — gọi là tiền hoàn (cashback)." },
   { id: "how-much", title: "Tôi được hoàn bao nhiêu?", answer: "Tùy sản phẩm, thường từ 4-8% giá trị đơn hàng. Con số chính xác hiện ngay khi bạn dán link — không cần đoán." },
-  { id: "why-wait", title: "Vì sao cần đợi 5-7 ngày mới rút được?", answer: "Shopee có thể hủy đơn hoặc thu hồi hoa hồng nếu đơn không thành công (trả hàng, hủy). Thời gian hold bảo vệ hệ thống khỏi rủi ro." },
+  { id: "why-wait", title: "Khi nào tiền hoàn về ví?", answer: "Sau khi Shopee xác nhận hoa hồng (khoảng 7-14 ngày), hệ thống sẽ cộng tiền vào ví bạn. Bạn có thể rút ngay khi đủ số dư tối thiểu." },
   { id: "voucher", title: "Dùng chung với mã giảm giá Shopee được không?", answer: "Được. Lấy short link trước → mở Shopee → áp voucher/freeship → thanh toán. Làm đúng thứ tự này là OK." },
   { id: "not-see", title: "Vì sao tôi không thấy tiền hoàn?", answer: "Thường do: không qua short link, bấm link affiliate khác, để quá lâu mới mua, đang bật Adblock, hoặc xem live/video giữa chừng." },
   { id: "sub-id", title: "Mã theo dõi (sub_id) là gì?", answer: "Mỗi tài khoản có một mã riêng tự động gắn vào short link. Mã này giúp hệ thống biết đơn hàng nào là của bạn để cộng tiền chính xác." },

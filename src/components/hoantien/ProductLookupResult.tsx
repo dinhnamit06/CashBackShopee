@@ -159,7 +159,7 @@ export default function ProductLookupResult() {
               Mua ngay - Nhận ngay {formatCurrency(product.cashbackAmount)}
             </a>
             <p className="text-xs text-muted text-center mt-2">
-              Tiền hoàn tự động về ví sau 5-7 ngày
+              Tiền hoàn tự động về ví sau khi hệ thống ghi nhận đơn
             </p>
           </div>
         </div>

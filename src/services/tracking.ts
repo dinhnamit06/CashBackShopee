@@ -37,36 +37,50 @@ export async function syncOrders() {
     let credited = 0;
 
     for (const item of items) {
-      const subId = item.sub_id1 || item.sub_id || "";
+      // addlivetag API: sub_id1 chinh la sub_id cua chung ta
+      const subId = item.sub_id1 || "";
       if (!subId) continue;
 
+      // Dung purchase_time + subId lam unique key
+      const purchaseTime = item.purchase_time
+        ? new Date(Number(item.purchase_time) * 1000)
+        : new Date();
+      const orderKey = `${subId}_${purchaseTime.getTime()}`;
+
       const existing = await prisma.order.findFirst({
-        where: { subId, shopeeOrderSn: item.order_sn || "" },
+        where: { subId, purchaseTime },
       });
       if (existing) continue;
 
+      // Match user: subId format = U{userId prefix}{linkCode}
+      const match = subId.match(/^U([a-zA-Z0-9]{4})/);
+      if (!match) continue;
+
       const user = await prisma.user.findFirst({
-        where: { subId: { contains: subId.split("_")[0] || "" } },
+        where: { subId: { startsWith: `U${match[1]}` } },
       });
       if (!user) continue;
 
       const commission = Number(item.commission) || 0;
+      const mcnFee = Number(item.mcn_fee) || 0;
+      const netCommission = commission - mcnFee; // Commission sau phi MCN
       const shareRate = Number(process.env.CASHBACK_SHARE_RATE || "0.6");
-      const cashback = Math.floor(commission * shareRate);
+      const cashback = Math.floor(netCommission * shareRate);
 
       await prisma.order.create({
         data: {
           userId: user.id,
-          shopeeOrderSn: item.order_sn || "",
-          productName: item.item_name || "",
+          shopeeOrderSn: item.order_id || item.order_sn || orderKey,
+          productName: item.item_name || "San pham Shopee",
           productImage: item.image || "",
+          shopName: item.shop_name || "",
           price: Number(item.price) || 0,
-          commission,
+          commission: netCommission,
           cashbackAmount: cashback,
           cashbackRate: Math.round(shareRate * 100),
-          status: "pending",
+          status: "completed",
           subId,
-          purchaseTime: item.purchase_time ? new Date(item.purchase_time * 1000) : undefined,
+          purchaseTime,
         },
       });
 
@@ -81,9 +95,11 @@ export async function syncOrders() {
 
 /**
  * Complete orders past hold period → credit user
+ * Chi credit nhung don co status "completed" va chua bi huy/hoan
  */
 export async function releaseOrders() {
-  const holdDays = 7;
+  // Cau hinh so ngay hold qua env, mac dinh 0 = credit ngay
+  const holdDays = Number(process.env.HOLD_DAYS || "0");
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - holdDays);
 
@@ -94,7 +110,13 @@ export async function releaseOrders() {
     },
   });
 
+  let released = 0;
+
   for (const order of readyOrders) {
+    // Kiem tra lai: don co con trong conversion report khong?
+    // Neu bi huy/hoan → status se la "rejected" → khong credit
+    if (order.status !== "completed") continue;
+
     await prisma.$transaction([
       prisma.order.update({ where: { id: order.id }, data: { status: "paid" } }),
       prisma.user.update({
@@ -107,7 +129,7 @@ export async function releaseOrders() {
           type: "cashback",
           amount: order.cashbackAmount,
           orderId: order.id,
-          desc: `Hoàn tiền đơn ${order.productName}`,
+          desc: `Hoan tien don ${order.productName}`,
         },
       }),
     ]);
@@ -131,13 +153,15 @@ export async function releaseOrders() {
               type: "referral",
               amount: refReward,
               orderId: order.id,
-              desc: `Thưởng giới thiệu từ đơn ${order.productName}`,
+              desc: `Thuong gioi thieu tu don ${order.productName}`,
             },
           }),
         ]);
       }
     }
+
+    released++;
   }
 
-  return { success: true, released: readyOrders.length };
+  return { success: true, released };
 }

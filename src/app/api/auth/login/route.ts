@@ -11,13 +11,8 @@ export async function POST(req: NextRequest) {
     }
 
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
-      return NextResponse.json({ error: "Email không tồn tại" }, { status: 401 });
-    }
-
-    const valid = await verifyPassword(password, user.password);
-    if (!valid) {
-      return NextResponse.json({ error: "Mật khẩu không đúng" }, { status: 401 });
+    if (!user || !(await verifyPassword(password, user.password))) {
+      return NextResponse.json({ error: "Thông tin đăng nhập không hợp lệ, vui lòng nhập lại" }, { status: 401 });
     }
 
     await setAuthCookie(user.id);
@@ -31,6 +26,7 @@ export async function POST(req: NextRequest) {
         linkCode: user.linkCode,
         subId: user.subId,
         referralCode: user.referralCode,
+        role: user.role,
       },
     });
   } catch (error) {

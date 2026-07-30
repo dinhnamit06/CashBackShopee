@@ -12,6 +12,7 @@ interface UserInfo {
   balance?: number;
   subId?: string;
   linkCode?: string;
+  role?: string;
 }
 
 export default function Header() {
@@ -70,7 +71,8 @@ export default function Header() {
               { href: "/dashboard/don-hang", label: "Đơn hàng" },
               { href: "/dashboard/rut-tien", label: "Rút tiền" },
               { href: "/gioi-thieu-ban-be", label: "Mời bạn" },
-            ].map((item) => (
+              ...(user?.role === "admin" ? [{ href: "/admin", label: "Admin" }] : []),
+            ].map((item: any) => (
               <motion.div
                 key={item.href}
                 whileHover="hover"

@@ -15,6 +15,7 @@ export async function GET() {
       subId: user.subId,
       linkCode: user.linkCode,
       referralCode: user.referralCode,
+      role: user.role,
     },
   });
 }

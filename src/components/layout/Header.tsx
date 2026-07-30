@@ -19,7 +19,7 @@ export default function Header() {
   const [loading, setLoading] = useState(true);
   const pathname = usePathname();
 
-  const isActive = (path: string) => pathname === path || (path !== "/" && pathname.startsWith(path));
+  const isActive = (path: string) => pathname === path;
 
   useEffect(() => {
     fetch("/api/auth/me")

@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import BotConnectCard from "@/components/BotConnectCard";
 import { inspectShopeeUrl } from "@/lib/shopee-url";
@@ -98,12 +99,23 @@ function formatCurrency(value: number) {
 }
 
 export default function HomeClient() {
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+  const [loadingUser, setLoadingUser] = useState(true);
   const [link, setLink] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [preview, setPreview] = useState<ProductPreview | null>(null);
   const [copied, setCopied] = useState(false);
   const [showNotice, setShowNotice] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((d) => setUser(d.user))
+      .catch(() => {})
+      .finally(() => setLoadingUser(false));
+  }, []);
 
   useEffect(() => {
     try {
@@ -117,17 +129,12 @@ export default function HomeClient() {
 
   useEffect(() => {
     if (!showNotice) return;
-
     const previousOverflow = document.body.style.overflow;
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setShowNotice(false);
-      }
+      if (event.key === "Escape") setShowNotice(false);
     };
-
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", handleKeyDown);
-
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleKeyDown);
@@ -137,16 +144,24 @@ export default function HomeClient() {
   const closeNotice = () => {
     try {
       window.localStorage.setItem("hoantien-notice-seen", "1");
-    } catch {
-      // The notice can still be dismissed when storage is unavailable.
-    }
+    } catch {}
     setShowNotice(false);
+  };
+
+  const requireLogin = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    if (!user) {
+      window.location.href = "/login";
+      return true;
+    }
+    return false;
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const inspectedUrl = inspectShopeeUrl(link);
+    if (requireLogin()) return;
 
+    const inspectedUrl = inspectShopeeUrl(link);
     if (!inspectedUrl) {
       setError("Hãy dán đúng link sản phẩm hoặc short link Shopee.");
       setPreview(null);
@@ -186,15 +201,20 @@ export default function HomeClient() {
     }
   };
 
-  const handleCopy = async () => {
+  const handleCopy = async (e: React.MouseEvent) => {
+    if (requireLogin(e)) return;
     if (!preview?.shortUrl) return;
-
     try {
       await navigator.clipboard.writeText(preview.shortUrl);
       setCopied(true);
     } catch {
       setError("Không thể tự động sao chép. Hãy chọn và copy link thủ công.");
     }
+  };
+
+  const handleBuyNow = (e: React.MouseEvent, url: string) => {
+    if (requireLogin(e)) return;
+    window.open(url, "_blank");
   };
 
   return (
@@ -418,12 +438,19 @@ export default function HomeClient() {
                               </div>
                               <div className="flex flex-col gap-2 sm:flex-row">
                                 <input readOnly value={preview.shortUrl} className="input font-mono text-xs flex-1" onFocus={(e) => e.currentTarget.select()} />
-                                <button type="button" onClick={handleCopy} className="btn-secondary text-sm whitespace-nowrap">
+                                <button
+                                  type="button"
+                                  onClick={handleCopy}
+                                  className="btn-secondary text-sm whitespace-nowrap"
+                                >
                                   {copied ? "Đã copy ✓" : "Copy short link"}
                                 </button>
-                                <a href={preview.shortUrl} target="_blank" rel="noreferrer" className="btn-primary text-sm text-center whitespace-nowrap">
+                                <button
+                                  onClick={(e) => handleBuyNow(e, preview.shortUrl!)}
+                                  className="btn-primary text-sm text-center whitespace-nowrap"
+                                >
                                   Mua ngay trên Shopee
-                                </a>
+                                </button>
                               </div>
                             </div>
                             {preview.subId && (
@@ -520,6 +547,7 @@ export default function HomeClient() {
             </div>
 
             <div className="mt-8 grid gap-4 md:grid-cols-3">
+              {/* Card 1: Thành viên mới */}
               <article className="rounded-[22px] border-2 border-emerald-200 bg-white p-6 shadow-[0_10px_30px_rgba(15,23,42,0.05)] transition hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(16,185,129,0.12)]">
                 <span className="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-extrabold text-emerald-700">
                   Thành viên mới
@@ -534,12 +562,13 @@ export default function HomeClient() {
                 </p>
                 <Link
                   href="/register"
-                  className="mt-4 inline-flex text-sm font-extrabold text-emerald-600 hover:underline"
+                  className="mt-4 inline-flex text-sm font-extrabold text-emerald-600 hover:underline transition-all duration-200 hover:scale-105"
                 >
                   Đăng ký nhận ưu đãi →
                 </Link>
               </article>
 
+              {/* Card 2: Mời bạn bè */}
               <article className="rounded-[22px] border-2 border-orange-200 bg-white p-6 shadow-[0_10px_30px_rgba(15,23,42,0.05)] transition hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(249,115,22,0.12)]">
                 <span className="inline-flex rounded-full bg-orange-100 px-3 py-1 text-xs font-extrabold text-orange-600">
                   Mời bạn bè
@@ -553,14 +582,21 @@ export default function HomeClient() {
                   <b className="text-[#ee4d2d]">+10.000đ</b>. Mỗi cặp nhận một
                   lần.
                 </p>
-                <Link
-                  href="/gioi-thieu-ban-be"
-                  className="mt-4 inline-flex text-sm font-extrabold text-[#ee4d2d] hover:underline"
+                <button
+                  onClick={() => {
+                    if (!user) {
+                      window.location.href = "/login";
+                    } else {
+                      window.location.href = "/gioi-thieu-ban-be";
+                    }
+                  }}
+                  className="mt-4 inline-flex text-sm font-extrabold text-orange-600 hover:underline transition-all duration-200 hover:scale-105"
                 >
                   Lấy link mời →
-                </Link>
+                </button>
               </article>
 
+              {/* Card 3: Top tuần */}
               <article className="rounded-[22px] border-2 border-violet-200 bg-white p-6 shadow-[0_10px_30px_rgba(15,23,42,0.05)] transition hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(139,92,246,0.12)]">
                 <span className="inline-flex rounded-full bg-violet-100 px-3 py-1 text-xs font-extrabold text-violet-700">
                   Top tuần
@@ -572,12 +608,18 @@ export default function HomeClient() {
                   Xếp hạng mua sắm tuần này. Mua qua link hoàn tiền để leo top
                   và nhận thêm phần thưởng.
                 </p>
-                <Link
-                  href="/dashboard/don-hang"
-                  className="mt-4 inline-flex text-sm font-extrabold text-violet-600 hover:underline"
+                <button
+                  onClick={() => {
+                    if (!user) {
+                      window.location.href = "/login";
+                    } else {
+                      window.location.href = "/dashboard/don-hang";
+                    }
+                  }}
+                  className="mt-4 inline-flex text-sm font-extrabold text-violet-600 hover:underline transition-all duration-200 hover:scale-105"
                 >
                   Xem bảng xếp hạng →
-                </Link>
+                </button>
               </article>
             </div>
           </div>
@@ -598,13 +640,19 @@ export default function HomeClient() {
                   Chia sẻ mã giới thiệu của bạn. Khi người được mời mua sắm hợp
                   lệ, bạn có thể nhận thêm hoa hồng giới thiệu.
                 </p>
-                <Link
-                  href="/gioi-thieu-ban-be"
-                  className="btn-primary mt-7"
+                <button
+                  onClick={() => {
+                    if (!user) {
+                      window.location.href = "/login";
+                    } else {
+                      window.location.href = "/gioi-thieu-ban-be";
+                    }
+                  }}
+                  className="btn-primary mt-7 transition-all duration-200 hover:scale-105 hover:shadow-lg"
                 >
                   Khám phá chương trình
                   <span aria-hidden="true">→</span>
-                </Link>
+                </button>
               </div>
 
               <div className="relative mt-10 grid grid-cols-2 gap-4 lg:mt-0 lg:pl-12">

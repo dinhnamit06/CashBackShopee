@@ -30,14 +30,21 @@ const channelDetails: Record<Channel, { label: string; icon: string; openLabel: 
 };
 
 export default function BotConnectCard({ linkCode: propLinkCode, demo = false }: BotConnectCardProps) {
+  const [user, setUser] = useState<any>(null);
   const [fetchedLinkCode, setFetchedLinkCode] = useState<string | null>(null);
 
   useEffect(() => {
-    if (propLinkCode) { setFetchedLinkCode(propLinkCode); return; }
     fetch("/api/auth/me")
-      .then(r => r.json())
-      .then(d => { if (d.user?.linkCode) setFetchedLinkCode(d.user.linkCode); })
+      .then((r) => r.json())
+      .then((d) => {
+        setUser(d.user);
+        if (d.user?.linkCode) setFetchedLinkCode(d.user.linkCode);
+      })
       .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (propLinkCode) setFetchedLinkCode(propLinkCode);
   }, [propLinkCode]);
 
   const linkCode = propLinkCode || fetchedLinkCode;
@@ -48,6 +55,10 @@ export default function BotConnectCard({ linkCode: propLinkCode, demo = false }:
   useEffect(() => () => { if (resetTimer.current) clearTimeout(resetTimer.current); }, []);
 
   const handleCopy = async () => {
+    if (!user) {
+      window.location.href = "/login";
+      return;
+    }
     if (!commands) return;
     const cmd = commands.telegram || commands.zalo || "";
     if (!cmd) return;
@@ -57,6 +68,13 @@ export default function BotConnectCard({ linkCode: propLinkCode, demo = false }:
       if (resetTimer.current) clearTimeout(resetTimer.current);
       resetTimer.current = setTimeout(() => setCopied(false), 3000);
     } catch {}
+  };
+
+  const handleBotClick = (e: React.MouseEvent, url: string) => {
+    if (!user) {
+      e.preventDefault();
+      window.location.href = "/login";
+    }
   };
 
   return (
@@ -94,8 +112,14 @@ export default function BotConnectCard({ linkCode: propLinkCode, demo = false }:
           {(Object.keys(channelDetails) as Channel[]).map((channel) => {
             const d = channelDetails[channel];
             return (
-              <a key={channel} href={d.url} target="_blank" rel="noopener noreferrer"
-                className={`inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-5 text-sm font-extrabold text-white transition hover:-translate-y-0.5 ${d.buttonClass}`}>
+              <a
+                key={channel}
+                href={d.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => handleBotClick(e, d.url)}
+                className={`inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-5 text-sm font-extrabold text-white transition hover:-translate-y-0.5 ${d.buttonClass}`}
+              >
                 <span>{d.icon}</span> {channel === "telegram" ? "Telegram bot" : "Zalo bot"}
                 {demo && <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px]">Demo</span>}
               </a>
@@ -103,13 +127,15 @@ export default function BotConnectCard({ linkCode: propLinkCode, demo = false }:
           })}
         </div>
 
-        {/* Unified connect button */}
         <div className="mx-auto mt-5 flex max-w-sm">
           {commands ? (
-            <button type="button" onClick={handleCopy}
+            <button
+              type="button"
+              onClick={handleCopy}
               className={`inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl px-5 text-sm font-extrabold text-white transition hover:-translate-y-0.5 ${
                 copied ? "bg-emerald-600" : "bg-gradient-to-r from-[#ee4d2d] to-orange-500 shadow-[0_10px_22px_rgba(238,77,45,0.22)]"
-              }`}>
+              }`}
+            >
               {copied ? (
                 <>✓ Đã sao chép,gửi câu lệnh vào nhóm để kết nối</>
               ) : (
@@ -117,9 +143,11 @@ export default function BotConnectCard({ linkCode: propLinkCode, demo = false }:
               )}
             </button>
           ) : (
-            <Link href="/login"
-              className="inline-flex min-h-12 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-[#ee4d2d] to-orange-500 px-5 text-sm font-extrabold text-white shadow-[0_10px_22px_rgba(238,77,45,0.22)] transition hover:-translate-y-0.5">
-              Đăng nhập để kết nối với bot
+            <Link
+              href={user ? "/dashboard" : "/login"}
+              className="inline-flex min-h-12 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-[#ee4d2d] to-orange-500 px-5 text-sm font-extrabold text-white shadow-[0_10px_22px_rgba(238,77,45,0.22)] transition hover:-translate-y-0.5"
+            >
+              {user ? "Đi đến Dashboard" : "Đăng nhập để kết nối với bot"}
             </Link>
           )}
         </div>
@@ -128,7 +156,9 @@ export default function BotConnectCard({ linkCode: propLinkCode, demo = false }:
           {commands ? (
             copied ? "Đã copy — gửi lệnh vào chat bot để liên kết tài khoản." : "Nhấn nút trên để copy lệnh liên kết."
           ) : (
-            <>Chưa có tài khoản? <Link href="/register" className="font-bold text-[#ee4d2d] hover:underline">Đăng ký miễn phí</Link></>
+            <Link href={user ? "/dashboard" : "/login"} className="font-bold text-[#ee4d2d] hover:underline">
+              {user ? "Đi đến Dashboard để lấy mã" : "Đăng nhập để kết nối với bot"}
+            </Link>
           )}
         </p>
       </div>

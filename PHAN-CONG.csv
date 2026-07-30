@@ -1,0 +1,15 @@
+Tuần,Người,STT,Công việc,Trạng thái,Ngày bắt đầu,Ngày hoàn thành,Ghi chú
+T1,Nam,1,Cron job tự động sync đơn hàng 15 phút,☐ Chưa làm,,,Vercel Cron
+T1,Nam,2,API rút tiền + duyệt rút + lịch sử giao dịch,☐ Chưa làm,,,
+T1,Nam,3,Admin panel: đơn hàng + người dùng + duyệt rút,☐ Chưa làm,,,
+T1,Nam,4,Bot Telegram + Zalo: nhận /lienket /sodu,☐ Chưa làm,,,Webhook
+T1,Nam,5,Referral tracking thật: thưởng khi ref mua hàng,☐ Chưa làm,,,
+T1,Nam,6,Deploy VPS/Vercel + domain + SSL,☐ Chưa làm,,,Production
+T1,Chí,7,Responsive mobile toàn bộ trang,☐ Chưa làm,,,Mobile-first
+T1,Chí,8,Animation mượt + skeleton loading + toast,☐ Chưa làm,,,UX
+T1,Chí,9,Fix ảnh sản phẩm + optimize performance,☐ Chưa làm,,,Next/Image
+T1,Chí,10,UI Dashboard + Đơn hàng đẹp + filter sort,☐ Chưa làm,,,
+T1,Chí,11,Dark mode + SEO metadata tất cả trang,☐ Chưa làm,,,
+T1,Chí,12,Test full flow + viết README báo cáo bug,☐ Chưa làm,,,
+T1,Nam,13,Tổng hợp + review code + merge final,☐ Chưa làm,,,
+T1,Chí,14,Clean code + chuẩn bị production,☐ Chưa làm,,,

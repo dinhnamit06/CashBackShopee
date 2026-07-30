@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import BotConnectCard from "@/components/BotConnectCard";
 import { inspectShopeeUrl } from "@/lib/shopee-url";
@@ -98,6 +99,9 @@ function formatCurrency(value: number) {
 }
 
 export default function HomeClient() {
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+  const [loadingUser, setLoadingUser] = useState(true);
   const [link, setLink] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -105,6 +109,16 @@ export default function HomeClient() {
   const [copied, setCopied] = useState(false);
   const [showNotice, setShowNotice] = useState(false);
 
+  // Kiểm tra đăng nhập
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((d) => setUser(d.user))
+      .catch(() => {})
+      .finally(() => setLoadingUser(false));
+  }, []);
+
+  // Notice
   useEffect(() => {
     try {
       if (window.localStorage.getItem("hoantien-notice-seen") !== "1") {
@@ -117,17 +131,12 @@ export default function HomeClient() {
 
   useEffect(() => {
     if (!showNotice) return;
-
     const previousOverflow = document.body.style.overflow;
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setShowNotice(false);
-      }
+      if (event.key === "Escape") setShowNotice(false);
     };
-
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", handleKeyDown);
-
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleKeyDown);
@@ -137,16 +146,25 @@ export default function HomeClient() {
   const closeNotice = () => {
     try {
       window.localStorage.setItem("hoantien-notice-seen", "1");
-    } catch {
-      // The notice can still be dismissed when storage is unavailable.
-    }
+    } catch {}
     setShowNotice(false);
+  };
+
+  // Kiểm tra đăng nhập và chuyển hướng nếu cần
+  const requireLogin = () => {
+    if (!user) {
+      router.push("/login");
+      return true;
+    }
+    return false;
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const inspectedUrl = inspectShopeeUrl(link);
+    // Nếu chưa đăng nhập, chuyển hướng
+    if (requireLogin()) return;
 
+    const inspectedUrl = inspectShopeeUrl(link);
     if (!inspectedUrl) {
       setError("Hãy dán đúng link sản phẩm hoặc short link Shopee.");
       setPreview(null);
@@ -187,14 +205,19 @@ export default function HomeClient() {
   };
 
   const handleCopy = async () => {
+    if (requireLogin()) return;
     if (!preview?.shortUrl) return;
-
     try {
       await navigator.clipboard.writeText(preview.shortUrl);
       setCopied(true);
     } catch {
       setError("Không thể tự động sao chép. Hãy chọn và copy link thủ công.");
     }
+  };
+
+  const handleBuyNow = (url: string) => {
+    if (requireLogin()) return;
+    window.open(url, "_blank");
   };
 
   return (
@@ -408,6 +431,7 @@ export default function HomeClient() {
 
                       <div className="border-t border-emerald-100 bg-white/80 px-4 py-4 space-y-4">
                         {preview.shortUrl ? (
+                          // Đã đăng nhập và có shortUrl
                           <>
                             <div className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
                               <b>Bước tiếp theo:</b> Bấm <b>Mua ngay</b> (short link) hoặc copy short link → mở Shopee → mua trong <b>20–30 phút</b>. Short link mới ghi lượt click để đối soát.
@@ -418,12 +442,19 @@ export default function HomeClient() {
                               </div>
                               <div className="flex flex-col gap-2 sm:flex-row">
                                 <input readOnly value={preview.shortUrl} className="input font-mono text-xs flex-1" onFocus={(e) => e.currentTarget.select()} />
-                                <button type="button" onClick={handleCopy} className="btn-secondary text-sm whitespace-nowrap">
+                                <button
+                                  type="button"
+                                  onClick={handleCopy}
+                                  className="btn-secondary text-sm whitespace-nowrap"
+                                >
                                   {copied ? "Đã copy ✓" : "Copy short link"}
                                 </button>
-                                <a href={preview.shortUrl} target="_blank" rel="noreferrer" className="btn-primary text-sm text-center whitespace-nowrap">
+                                <button
+                                  onClick={() => handleBuyNow(preview.shortUrl!)}
+                                  className="btn-primary text-sm text-center whitespace-nowrap"
+                                >
                                   Mua ngay trên Shopee
-                                </a>
+                                </button>
                               </div>
                             </div>
                             {preview.subId && (
@@ -433,6 +464,7 @@ export default function HomeClient() {
                             )}
                           </>
                         ) : (
+                          // Chưa đăng nhập hoặc không có shortUrl
                           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                             <div className="flex-1">
                               <p className="mb-1 text-sm font-semibold text-slate-800">Đăng nhập để tạo link theo dõi riêng</p>

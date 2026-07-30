@@ -109,7 +109,6 @@ export default function HomeClient() {
   const [copied, setCopied] = useState(false);
   const [showNotice, setShowNotice] = useState(false);
 
-  // Kiểm tra đăng nhập
   useEffect(() => {
     fetch("/api/auth/me")
       .then((r) => r.json())
@@ -118,7 +117,6 @@ export default function HomeClient() {
       .finally(() => setLoadingUser(false));
   }, []);
 
-  // Notice
   useEffect(() => {
     try {
       if (window.localStorage.getItem("hoantien-notice-seen") !== "1") {
@@ -150,10 +148,10 @@ export default function HomeClient() {
     setShowNotice(false);
   };
 
-  // Kiểm tra đăng nhập và chuyển hướng nếu cần
-  const requireLogin = () => {
+  const requireLogin = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
     if (!user) {
-      router.push("/login");
+      window.location.href = "/login";
       return true;
     }
     return false;
@@ -161,7 +159,6 @@ export default function HomeClient() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Nếu chưa đăng nhập, chuyển hướng
     if (requireLogin()) return;
 
     const inspectedUrl = inspectShopeeUrl(link);
@@ -204,8 +201,8 @@ export default function HomeClient() {
     }
   };
 
-  const handleCopy = async () => {
-    if (requireLogin()) return;
+  const handleCopy = async (e: React.MouseEvent) => {
+    if (requireLogin(e)) return;
     if (!preview?.shortUrl) return;
     try {
       await navigator.clipboard.writeText(preview.shortUrl);
@@ -215,8 +212,8 @@ export default function HomeClient() {
     }
   };
 
-  const handleBuyNow = (url: string) => {
-    if (requireLogin()) return;
+  const handleBuyNow = (e: React.MouseEvent, url: string) => {
+    if (requireLogin(e)) return;
     window.open(url, "_blank");
   };
 
@@ -431,7 +428,6 @@ export default function HomeClient() {
 
                       <div className="border-t border-emerald-100 bg-white/80 px-4 py-4 space-y-4">
                         {preview.shortUrl ? (
-                          // Đã đăng nhập và có shortUrl
                           <>
                             <div className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
                               <b>Bước tiếp theo:</b> Bấm <b>Mua ngay</b> (short link) hoặc copy short link → mở Shopee → mua trong <b>20–30 phút</b>. Short link mới ghi lượt click để đối soát.
@@ -450,7 +446,7 @@ export default function HomeClient() {
                                   {copied ? "Đã copy ✓" : "Copy short link"}
                                 </button>
                                 <button
-                                  onClick={() => handleBuyNow(preview.shortUrl!)}
+                                  onClick={(e) => handleBuyNow(e, preview.shortUrl!)}
                                   className="btn-primary text-sm text-center whitespace-nowrap"
                                 >
                                   Mua ngay trên Shopee
@@ -464,7 +460,6 @@ export default function HomeClient() {
                             )}
                           </>
                         ) : (
-                          // Chưa đăng nhập hoặc không có shortUrl
                           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                             <div className="flex-1">
                               <p className="mb-1 text-sm font-semibold text-slate-800">Đăng nhập để tạo link theo dõi riêng</p>
@@ -552,6 +547,7 @@ export default function HomeClient() {
             </div>
 
             <div className="mt-8 grid gap-4 md:grid-cols-3">
+              {/* Card 1: Thành viên mới */}
               <article className="rounded-[22px] border-2 border-emerald-200 bg-white p-6 shadow-[0_10px_30px_rgba(15,23,42,0.05)] transition hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(16,185,129,0.12)]">
                 <span className="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-extrabold text-emerald-700">
                   Thành viên mới
@@ -566,12 +562,13 @@ export default function HomeClient() {
                 </p>
                 <Link
                   href="/register"
-                  className="mt-4 inline-flex text-sm font-extrabold text-emerald-600 hover:underline"
+                  className="mt-4 inline-flex text-sm font-extrabold text-emerald-600 hover:underline transition-all duration-200 hover:scale-105"
                 >
                   Đăng ký nhận ưu đãi →
                 </Link>
               </article>
 
+              {/* Card 2: Mời bạn bè */}
               <article className="rounded-[22px] border-2 border-orange-200 bg-white p-6 shadow-[0_10px_30px_rgba(15,23,42,0.05)] transition hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(249,115,22,0.12)]">
                 <span className="inline-flex rounded-full bg-orange-100 px-3 py-1 text-xs font-extrabold text-orange-600">
                   Mời bạn bè
@@ -585,14 +582,21 @@ export default function HomeClient() {
                   <b className="text-[#ee4d2d]">+10.000đ</b>. Mỗi cặp nhận một
                   lần.
                 </p>
-                <Link
-                  href="/gioi-thieu-ban-be"
-                  className="mt-4 inline-flex text-sm font-extrabold text-[#ee4d2d] hover:underline"
+                <button
+                  onClick={() => {
+                    if (!user) {
+                      window.location.href = "/login";
+                    } else {
+                      window.location.href = "/gioi-thieu-ban-be";
+                    }
+                  }}
+                  className="mt-4 inline-flex text-sm font-extrabold text-orange-600 hover:underline transition-all duration-200 hover:scale-105"
                 >
                   Lấy link mời →
-                </Link>
+                </button>
               </article>
 
+              {/* Card 3: Top tuần */}
               <article className="rounded-[22px] border-2 border-violet-200 bg-white p-6 shadow-[0_10px_30px_rgba(15,23,42,0.05)] transition hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(139,92,246,0.12)]">
                 <span className="inline-flex rounded-full bg-violet-100 px-3 py-1 text-xs font-extrabold text-violet-700">
                   Top tuần
@@ -604,12 +608,18 @@ export default function HomeClient() {
                   Xếp hạng mua sắm tuần này. Mua qua link hoàn tiền để leo top
                   và nhận thêm phần thưởng.
                 </p>
-                <Link
-                  href="/dashboard/don-hang"
-                  className="mt-4 inline-flex text-sm font-extrabold text-violet-600 hover:underline"
+                <button
+                  onClick={() => {
+                    if (!user) {
+                      window.location.href = "/login";
+                    } else {
+                      window.location.href = "/dashboard/don-hang";
+                    }
+                  }}
+                  className="mt-4 inline-flex text-sm font-extrabold text-violet-600 hover:underline transition-all duration-200 hover:scale-105"
                 >
                   Xem bảng xếp hạng →
-                </Link>
+                </button>
               </article>
             </div>
           </div>
@@ -630,13 +640,19 @@ export default function HomeClient() {
                   Chia sẻ mã giới thiệu của bạn. Khi người được mời mua sắm hợp
                   lệ, bạn có thể nhận thêm hoa hồng giới thiệu.
                 </p>
-                <Link
-                  href="/gioi-thieu-ban-be"
-                  className="btn-primary mt-7"
+                <button
+                  onClick={() => {
+                    if (!user) {
+                      window.location.href = "/login";
+                    } else {
+                      window.location.href = "/gioi-thieu-ban-be";
+                    }
+                  }}
+                  className="btn-primary mt-7 transition-all duration-200 hover:scale-105 hover:shadow-lg"
                 >
                   Khám phá chương trình
                   <span aria-hidden="true">→</span>
-                </Link>
+                </button>
               </div>
 
               <div className="relative mt-10 grid grid-cols-2 gap-4 lg:mt-0 lg:pl-12">

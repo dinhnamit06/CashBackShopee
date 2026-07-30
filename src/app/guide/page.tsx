@@ -35,7 +35,7 @@ const faqArticles = [
 export default function GuidePage() {
   return (
     <div className="bg-slate-50 min-h-[calc(100vh-56px)]">
-      <div className="mx-auto max-w-6xl px-4 py-6 space-y-10">
+      <div className="mx-auto max-w-6xl px-4 py-10 space-y-10">
         {/* Hero */}
         <div className="text-center max-w-2xl mx-auto">
           <h1 className="text-3xl font-extrabold text-slate-900">

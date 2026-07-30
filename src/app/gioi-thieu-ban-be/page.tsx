@@ -137,7 +137,7 @@ export default function ReferralPage() {
           <h3 className="font-bold text-foreground mb-4">Thống kê của bạn</h3>
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="bg-primary-light rounded-xl p-4 text-center">
-              <div className="text-xl md:text-2xl font-extrabold text-primary">{totalCommission.toLocaleString()}đ</div>
+              <div className="text-xl md:text-2xl font-extrabold text-primary">{totalCommission.toLocaleString('vi-VN')}đ</div>
               <div className="text-xs text-muted mt-1">Tổng hoa hồng</div>
             </div>
             <div className="bg-blue-50 rounded-xl p-4 text-center">
@@ -169,7 +169,7 @@ export default function ReferralPage() {
                     <div className="text-xs text-muted">đơn hàng</div>
                   </div>
                   <div className="text-center">
-                    <div className="font-bold text-success">{ref.commission.toLocaleString()}đ</div>
+                    <div className="font-bold text-success">{ref.commission.toLocaleString('vi-VN')}đ</div>
                     <div className="text-xs text-muted">Hoa hồng</div>
                   </div>
                 </div>
@@ -192,10 +192,10 @@ export default function ReferralPage() {
               <div key={item.id} className="flex items-center justify-between p-3 rounded-xl" style={{ backgroundColor: item.color + "40" }}>
                 <div>
                   <div className="text-sm font-semibold text-foreground">
-                    +{item.amount.toLocaleString()}đ
+                    +{item.amount.toLocaleString('vi-VN')}đ
                   </div>
                   <div className="text-xs text-muted">
-                    Đơn hàng: {item.orderValue.toLocaleString()}đ · Tỷ lệ: {item.rate}%
+                    Đơn hàng: {item.orderValue.toLocaleString('vi-VN')}đ · Tỷ lệ: {item.rate}%
                   </div>
                 </div>
                 <span className="text-xs text-muted">{item.time}</span>

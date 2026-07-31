@@ -65,8 +65,8 @@ export default function RutTienPage() {
         </div>
 
         <button disabled={!amount || Number(amount) < 20000 || Number(amount) > balance}
-          className="w-full py-3 text-sm font-bold text-white bg-primary hover:bg-primary-dark rounded-xl transition-colors disabled:opacity-50">
-          Yêu cầu rút tiền
+          className="w-full py-4 text-base font-extrabold text-white bg-gradient-to-r from-shopee to-orange-500 hover:from-shopee-dark hover:to-shopee rounded-xl transition-all shadow-lg shadow-shopee/25 hover:shadow-xl hover:shadow-shopee/30 disabled:opacity-40 disabled:shadow-none disabled:cursor-not-allowed tracking-wide">
+          💰 Yêu cầu rút tiền
         </button>
 
         <div className="text-xs text-zinc-400 space-y-1">

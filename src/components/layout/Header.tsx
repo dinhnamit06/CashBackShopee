@@ -18,15 +18,18 @@ export default function Header() {
   }, []);
 
   const handleLogout = async () => { await fetch("/api/auth/logout", { method: "POST" }); window.location.href = "/"; };
-  const isActive = (path: string) => pathname === path || (path !== "/" && pathname.startsWith(path));
+  const isActive = (path: string, exact?: boolean) => {
+    if (exact) return pathname === path;
+    return pathname.startsWith(path);
+  };
   const formatCurrency = (n: number) => n.toLocaleString("vi-VN") + "đ";
 
   const navItems = [
-    { href: "/", label: "Trang chủ" }, { href: "/guide", label: "Cách dùng" },
-    { href: "/dashboard", label: "Lấy link & Ví" }, { href: "/dashboard/don-hang", label: "Đơn hàng" },
+    { href: "/", label: "Trang chủ", exact: true }, { href: "/guide", label: "Cách dùng" },
+    { href: "/dashboard", label: "Lấy link & Ví", exact: true }, { href: "/dashboard/don-hang", label: "Đơn hàng" },
     { href: "/dashboard/rut-tien", label: "Rút tiền" }, { href: "/gioi-thieu-ban-be", label: "Mời bạn" },
     ...(user?.role === "admin" ? [{ href: "/admin", label: "Admin" }] : []),
-  ];
+  ] as { href: string; label: string; exact?: boolean }[];
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-100 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-900/90">
@@ -39,7 +42,7 @@ export default function Header() {
           {navItems.map((item) => (
             <Link key={item.href} href={item.href}
               className={`px-3 py-2 rounded-lg text-sm font-medium transition whitespace-nowrap ${
-                isActive(item.href) ? "bg-shopee/10 text-shopee" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                isActive(item.href, item.exact) ? "bg-shopee/10 text-shopee" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
               }`}>
               {item.label}
             </Link>
@@ -48,11 +51,11 @@ export default function Header() {
 
         <div className="flex items-center gap-2">
           {loading ? (
-            <div className="w-16 h-8 bg-slate-100 rounded-lg animate-pulse dark:bg-slate-800" />
+            <div className="w-16 h-8 bg-slate-100 rounded-lg animate-pulse" />
           ) : user ? (
             <>
               <div className="hidden sm:block text-right text-xs">
-                <div className="font-semibold dark:text-slate-200">{user.name}</div>
+                <div className="font-semibold">{user.name}</div>
                 <div className="text-shopee font-bold">{formatCurrency(user.balance || 0)}</div>
               </div>
               <button onClick={handleLogout} className="btn-secondary !py-2 !px-3 text-sm">Thoát</button>
@@ -66,11 +69,11 @@ export default function Header() {
         </div>
       </div>
 
-      <div className="flex gap-1 overflow-x-auto border-t border-slate-50 px-2 py-2 scrollbar-hide lg:hidden dark:border-slate-800">
+      <div className="flex gap-1 overflow-x-auto border-t border-slate-50 px-2 py-2 scrollbar-hide lg:hidden">
           {navItems.filter(i => i.href !== "/" && i.href !== "/guide").map(item => (
             <Link key={item.href} href={item.href}
               className={`shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-semibold whitespace-nowrap transition ${
-                isActive(item.href) ? "bg-shopee/10 text-shopee" : "text-slate-600 hover:bg-slate-100"
+                isActive(item.href, item.exact) ? "bg-shopee/10 text-shopee" : "text-slate-600 hover:bg-slate-100"
               }`}>
               {item.label}
             </Link>

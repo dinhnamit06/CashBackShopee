@@ -134,26 +134,36 @@ export async function releaseOrders() {
       }),
     ]);
 
-    // Referral reward
+    // Referral reward (20% hoa hong moi don)
     const referral = await prisma.referral.findFirst({
       where: { referredId: order.userId },
     });
     if (referral) {
       const refRate = 0.2;
       const refReward = Math.floor(order.cashbackAmount * refRate);
-      if (refReward > 0) {
+
+      // Bonus 10K cho don dau tien cua nguoi duoc GT
+      const isFirstOrder = await prisma.order.count({
+        where: { userId: order.userId, status: "paid" },
+      }) === 1;
+
+      const totalReward = isFirstOrder ? refReward + 10000 : refReward;
+
+      if (totalReward > 0) {
         await prisma.$transaction([
           prisma.user.update({
             where: { id: referral.referrerId },
-            data: { balance: { increment: refReward }, totalEarned: { increment: refReward } },
+            data: { balance: { increment: totalReward }, totalEarned: { increment: totalReward } },
           }),
           prisma.transaction.create({
             data: {
               userId: referral.referrerId,
               type: "referral",
-              amount: refReward,
+              amount: totalReward,
               orderId: order.id,
-              desc: `Thuong gioi thieu tu don ${order.productName}`,
+              desc: isFirstOrder
+                ? `Thuong gioi thieu + bonus 10K don dau: ${order.productName}`
+                : `Thuong gioi thieu tu don ${order.productName}`,
             },
           }),
         ]);
